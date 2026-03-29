@@ -14,6 +14,7 @@ if(MSVC)
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "/O2 /Zi /DNDEBUG")
 else()
     add_compile_options(-Wall -Wextra -Werror -pedantic)
+    add_compile_definitions(_POSIX_C_SOURCE=200809L)
     set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
 endif()
 
