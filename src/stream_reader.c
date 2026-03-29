@@ -9,6 +9,7 @@
 #define fileno_fn _fileno
 #else
 #include <sys/stat.h>
+#include <unistd.h>
 #define stat_t struct stat
 #define fstat_fn fstat
 #define fileno_fn fileno

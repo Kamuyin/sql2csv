@@ -55,22 +55,6 @@ static void skip_to_semicolon(Lexer *lex)
     }
 }
 
-static void skip_parens(Lexer *lex)
-{
-    int depth = 1;
-    Token tok;
-    while (depth > 0)
-    {
-        TokenType t = lexer_next(lex, &tok);
-        if (t == TOK_LPAREN)
-            depth++;
-        else if (t == TOK_RPAREN)
-            depth--;
-        else if (t == TOK_EOF)
-            return;
-    }
-}
-
 static char *decode_mysql_string(StringView sv, size_t *out_len)
 {
     const char *src = sv.data + 1;

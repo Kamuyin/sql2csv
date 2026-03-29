@@ -13,10 +13,12 @@
 #include <direct.h>
 #define mkdir_p(path) _mkdir(path)
 #define PATH_SEP '\\'
+#define s2c_strdup _strdup
 #else
 #include <sys/stat.h>
 #define mkdir_p(path) mkdir(path, 0755)
 #define PATH_SEP '/'
+#define s2c_strdup strdup
 #endif
 
 static void sanitize_filename(char *buf, size_t bufsize, const char *name)
@@ -44,7 +46,7 @@ static void sanitize_filename(char *buf, size_t bufsize, const char *name)
 AppResult registry_create(TableRegistry *reg, const char *output_dir)
 {
     memset(reg, 0, sizeof(*reg));
-    reg->output_dir = _strdup(output_dir);
+    reg->output_dir = s2c_strdup(output_dir);
     if (!reg->output_dir)
         return ERR_MEMORY;
     reg->tables = NULL;
@@ -79,7 +81,7 @@ AppResult registry_add_table(TableRegistry *reg, const char *name,
         existing->col_count = col_count;
         for (int i = 0; i < col_count; i++)
         {
-            existing->columns[i] = _strdup(columns[i]);
+            existing->columns[i] = s2c_strdup(columns[i]);
             if (!existing->columns[i])
                 return ERR_MEMORY;
         }
@@ -99,7 +101,7 @@ AppResult registry_add_table(TableRegistry *reg, const char *name,
     if (!info)
         return ERR_MEMORY;
 
-    info->name = _strdup(name);
+    info->name = s2c_strdup(name);
     if (!info->name)
     {
         free(info);
@@ -117,7 +119,7 @@ AppResult registry_add_table(TableRegistry *reg, const char *name,
     info->col_count = col_count;
     for (int i = 0; i < col_count; i++)
     {
-        info->columns[i] = _strdup(columns[i]);
+        info->columns[i] = s2c_strdup(columns[i]);
         if (!info->columns[i])
             return ERR_MEMORY;
     }
