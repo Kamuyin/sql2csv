@@ -6,7 +6,6 @@
 #include "table_registry.h"
 #include "progress.h"
 
-
 #define FORMAT_DETECT_PEEK_SIZE 8192
 
 SqlFormat detect_format(StreamReader *sr);

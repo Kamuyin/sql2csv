@@ -4,7 +4,8 @@
 #include "types.h"
 #include "stream_reader.h"
 
-typedef enum {
+typedef enum
+{
     TOK_EOF = 0,
     TOK_ERROR,
 
@@ -57,24 +58,28 @@ typedef enum {
     TOK_KW_USING
 } TokenType;
 
-typedef struct {
-    TokenType  type;
+typedef struct
+{
+    TokenType type;
     StringView text;
 } Token;
 
-typedef struct {
+typedef struct
+{
     StreamReader *sr;
-    int           raw_mode;
+    int raw_mode;
 } Lexer;
 
 void lexer_init(Lexer *lex, StreamReader *sr);
 TokenType lexer_next(Lexer *lex, Token *tok);
 
-static inline void lexer_set_raw_mode(Lexer *lex, int on) {
+static inline void lexer_set_raw_mode(Lexer *lex, int on)
+{
     lex->raw_mode = on;
 }
 
-static inline int tok_is_keyword(const Token *tok, TokenType kw) {
+static inline int tok_is_keyword(const Token *tok, TokenType kw)
+{
     return tok->type == kw;
 }
 

@@ -5,20 +5,22 @@
 #include "uthash.h"
 #include <stdio.h>
 
-typedef struct TableInfo {
-    char          *name;
-    char         **columns;
-    int            col_count;
-    FILE          *csv_fp;
-    int64_t        row_count;
+typedef struct TableInfo
+{
+    char *name;
+    char **columns;
+    int col_count;
+    FILE *csv_fp;
+    int64_t row_count;
     UT_hash_handle hh;
 } TableInfo;
 
-typedef struct {
-    TableInfo  *tables;
-    char       *output_dir;
-    int         table_count;
-    int64_t     total_rows;
+typedef struct
+{
+    TableInfo *tables;
+    char *output_dir;
+    int table_count;
+    int64_t total_rows;
 } TableRegistry;
 
 AppResult registry_create(TableRegistry *reg, const char *output_dir);
