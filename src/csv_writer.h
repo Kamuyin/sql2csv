@@ -4,6 +4,8 @@
 #include "types.h"
 #include <stdio.h>
 
+void csv_set_encoding(OutputEncoding enc);
+
 FILE *csv_open(const char *path);
 
 void csv_write_header(FILE *fp, char **columns, int col_count);

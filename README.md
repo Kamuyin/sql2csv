@@ -13,6 +13,8 @@ Options:
   -o, --output <dir>    Output directory (default: current directory)
   -f, --format <fmt>    Force format: mysql, pgsql (default: auto-detect)
   -b, --buffer <size>   Read buffer size in MB (default: 4)
+  -e, --encoding <enc>  Output encoding: passthrough, sanitize, latin1
+                        (default: passthrough)
   -v, --verbose         Show progress on stderr
   -h, --help            Show this help message
       --version         Show version
@@ -20,6 +22,11 @@ Options:
 Supported formats:
   mysql   - MySQL / phpMyAdmin / MariaDB dump
   pgsql   - PostgreSQL pg_dump output
+
+Encoding modes:
+  passthrough - write bytes as-is (default)
+  sanitize    - replace invalid UTF-8 sequences with '?'
+  latin1      - transcode ISO-8859-1 / LATIN-1 bytes to UTF-8
 ```
 
 Example:

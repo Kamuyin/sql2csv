@@ -71,4 +71,11 @@ typedef enum
     ERR_FORMAT
 } AppResult;
 
+typedef enum
+{
+    ENCODING_PASSTHROUGH = 0,
+    ENCODING_SANITIZE,
+    ENCODING_LATIN1
+} OutputEncoding;
+
 #endif /* TYPES_H */

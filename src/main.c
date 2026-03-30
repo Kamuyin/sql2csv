@@ -3,6 +3,7 @@
 #include "table_registry.h"
 #include "parser.h"
 #include "progress.h"
+#include "csv_writer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@ typedef struct
     const char *input_file;
     const char *output_dir;
     SqlFormat format;
+    OutputEncoding encoding;
     size_t buffer_size;
     int verbose;
     int show_help;
@@ -42,10 +44,17 @@ static void print_usage(void)
             "  -v, --verbose         Show progress on stderr\n"
             "  -h, --help            Show this help message\n"
             "      --version         Show version\n"
+            "  -e, --encoding <enc>  Output encoding: passthrough, sanitize, latin1\n"
+            "                        (default: passthrough)\n"
             "\n"
             "Supported formats:\n"
             "  mysql   - MySQL / phpMyAdmin / MariaDB dump\n"
-            "  pgsql   - PostgreSQL pg_dump output\n");
+            "  pgsql   - PostgreSQL pg_dump output\n"
+            "\n"
+            "Encoding modes:\n"
+            "  passthrough - write bytes as-is (default)\n"
+            "  sanitize    - replace invalid UTF-8 sequences with '?'\n"
+            "  latin1      - transcode ISO-8859-1 / LATIN-1 bytes to UTF-8\n");
 }
 
 static int streq(const char *a, const char *b)
@@ -58,6 +67,7 @@ static AppResult parse_args(int argc, char *argv[], CliArgs *args)
     memset(args, 0, sizeof(*args));
     args->output_dir = ".";
     args->format = FORMAT_UNKNOWN;
+    args->encoding = ENCODING_PASSTHROUGH;
     args->buffer_size = BUF_SIZE_DEFAULT;
 
     for (int i = 1; i < argc; i++)
@@ -77,6 +87,29 @@ static AppResult parse_args(int argc, char *argv[], CliArgs *args)
         if (streq(arg, "-v") || streq(arg, "--verbose"))
         {
             args->verbose = 1;
+            continue;
+        }
+        if (streq(arg, "-e") || streq(arg, "--encoding"))
+        {
+            if (i + 1 >= argc)
+            {
+                fprintf(stderr, "Error: %s requires an argument\n", arg);
+                return ERR_ARGS;
+            }
+            i++;
+            if (streq(argv[i], "passthrough"))
+                args->encoding = ENCODING_PASSTHROUGH;
+            else if (streq(argv[i], "sanitize"))
+                args->encoding = ENCODING_SANITIZE;
+            else if (streq(argv[i], "latin1") || streq(argv[i], "latin-1") ||
+                     streq(argv[i], "iso-8859-1") || streq(argv[i], "iso8859-1"))
+                args->encoding = ENCODING_LATIN1;
+            else
+            {
+                fprintf(stderr, "Error: unknown encoding '%s'. Use: passthrough, sanitize, latin1\n",
+                        argv[i]);
+                return ERR_ARGS;
+            }
             continue;
         }
         if (streq(arg, "-o") || streq(arg, "--output"))
@@ -206,13 +239,19 @@ int main(int argc, char *argv[])
     ProgressCtx prog;
     progress_init(&prog, sr.file_size, args.verbose);
 
+    csv_set_encoding(args.encoding);
+
     if (args.verbose)
     {
+        const char *enc_name = args.encoding == ENCODING_LATIN1     ? "latin1"
+                               : args.encoding == ENCODING_SANITIZE ? "sanitize"
+                                                                    : "passthrough";
         const char *fmt_name = (format == FORMAT_PGSQL) ? "PostgreSQL" : "MySQL";
-        fprintf(stderr, "Format:  %s\n", fmt_name);
-        fprintf(stderr, "Input:   %s\n", args.input_file);
-        fprintf(stderr, "Output:  %s\n", args.output_dir);
-        fprintf(stderr, "Buffer:  %zu MB\n", args.buffer_size / (1024 * 1024));
+        fprintf(stderr, "Format:   %s\n", fmt_name);
+        fprintf(stderr, "Input:    %s\n", args.input_file);
+        fprintf(stderr, "Output:   %s\n", args.output_dir);
+        fprintf(stderr, "Buffer:   %zu MB\n", args.buffer_size / (1024 * 1024));
+        fprintf(stderr, "Encoding: %s\n", enc_name);
         fprintf(stderr, "---\n");
     }
 
